@@ -65,9 +65,9 @@ app.post('/api/ocr', upload.single('image'), async (req, res) => {
     const jsonStr = response.text || "{}";
     const parsed = JSON.parse(jsonStr);
     res.json(parsed);
-  } catch (error) {
+  } catch (error: any) {
     console.error('OCR Error:', error);
-    res.status(500).json({ error: 'Failed to process image' });
+    res.status(500).json({ error: 'Failed to process image', details: error?.message || String(error) });
   }
 });
 
@@ -102,9 +102,9 @@ app.post('/api/generate-image', async (req, res) => {
     } else {
       res.status(500).json({ error: 'Failed to generate image' });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Generate Image Error:', error);
-    res.status(500).json({ error: 'Failed to generate image' });
+    res.status(500).json({ error: 'Failed to generate image', details: error?.message || String(error) });
   }
 });
 
@@ -128,9 +128,9 @@ app.post('/api/suggest', async (req, res) => {
     });
 
     res.json({ suggestion: response.text || 'No suggestions' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Suggest Error:', error);
-    res.status(500).json({ error: 'Failed to generate suggestions' });
+    res.status(500).json({ error: 'Failed to generate suggestions', details: error?.message || String(error) });
   }
 });
 
