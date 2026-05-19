@@ -1,0 +1,38 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with points and username",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "points": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["username", "points", "createdAt"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "An extracted note ready for sharing",
+      "type": "object",
+      "properties": {
+        "text": { "type": "string", "description": "The OCR extracted text" },
+        "title": { "type": "string", "description": "Short title" },
+        "authorId": { "type": "string", "description": "User ID of the author, or anonymous if public" },
+        "authorUsername": { "type": "string", "description": "Username of the author (denormalized)" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["text", "title", "createdAt", "authorId"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles. userId matches Auth UID."
+    },
+    "notes/{noteId}": {
+      "schema": { "$ref": "#/entities/Note" },
+      "description": "Extracted notes. noteId is shortlink."
+    }
+  }
+}

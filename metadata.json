@@ -1,0 +1,10 @@
+{
+  "name": "Knowledge Tree",
+  "description": "An AI-powered note-sharing platform featuring OCR capture, smart suggestions, social features, and a gamified leaderboard.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
