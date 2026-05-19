@@ -52,15 +52,14 @@ export function CapturePage({ user }: { user: User | null }) {
     setGeneratedImageUrl(null);
 
     try {
-      // convert dataURI to blob
-      const res = await fetch(imageSrc);
-      const blob = await res.blob();
-      const formData = new FormData();
-      formData.append('image', blob, 'capture.jpg');
+      // Extract base64 data and mime type from the data URI
+      const [header, base64Data] = imageSrc.split(',');
+      const mimeType = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
       
       const response = await fetch('/api/ocr', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageBase64: base64Data, mimeType }),
       });
       const data = await response.json();
       if (data.text) {

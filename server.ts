@@ -2,13 +2,8 @@ import express from 'express';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
-import multer from 'multer';
 
-// Memory storage for multer
-const upload = multer({ 
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
-});
+
 
 const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -16,24 +11,24 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
 
   // API Routes
   app.get('/api/health', (req, res) => {
     res.json({ status: 'ok' });
   });
 
-  app.post('/api/ocr', upload.single('image'), async (req, res) => {
+  app.post('/api/ocr', async (req, res) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'No image file provided' });
+      const { imageBase64, mimeType } = req.body;
+
+      if (!imageBase64) {
+        return res.status(400).json({ error: 'No image data provided' });
       }
 
-      console.log('Received file:', req.file.mimetype, req.file.size);
+      const fileMimeType = mimeType || 'image/jpeg';
+      console.log('Received image, mime:', fileMimeType, 'base64 length:', imageBase64.length);
 
-      // Convert buffer to base64
-      const base64Data = req.file.buffer.toString('base64');
-      
       const response = await genai.models.generateContent({
         model: 'gemini-3.1-pro-preview',
         contents: [
@@ -41,7 +36,7 @@ async function startServer() {
             role: 'user',
             parts: [
               { text: "Analyze this image containing notes. 1. Extract the text accurately. 2. Identify if there are any graphs, charts, diagrams, or illustrations. 3. If there is a diagram, provide a highly detailed visual description (diagramDescription) of it so it can be recreated by an AI image generator later." },
-              { inlineData: { data: base64Data, mimeType: req.file.mimetype } }
+              { inlineData: { data: imageBase64, mimeType: fileMimeType } }
             ]
           }
         ],
